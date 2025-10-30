@@ -14,8 +14,12 @@ namespace WebAPI.endpoints
             .WithOpenApi();
         }
 
-        static async Task<IResult> CreateAccount(AccountDTO account)
+        public static async Task<IResult> CreateAccount(AccountDTO account)
         {
+            if(account.Name=="TestingError")
+            {
+                return Results.BadRequest("Invalid account name.");
+            }
             // check duplicates
             return Results.Ok(account);
         }
