@@ -1,5 +1,5 @@
 using FluentValidation;
-using FluentValidation.AspNetCore;
+using FluentValidation;
 using WebAPI.endpoints;
 using WebAPI.validators;
 
@@ -10,8 +10,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddCors();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddFluentValidationAutoValidation();
-builder.Services.AddValidatorsFromAssemblyContaining<AccountCreateValidator>();
+builder.Services.AddScoped<IValidator<AccountDTO>, AccountCreateValidator>();
 
 var app = builder.Build();
 
