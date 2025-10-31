@@ -15,7 +15,7 @@ namespace WebAPITest.endpoints.AccountDataTypes
             };
 
             // Act
-            var result = await Account.CreateAccount(account);
+            var result = await AccountAPI.CreateAccount(account);
 
             // Assert
             Assert.NotNull(result);
