@@ -10,8 +10,8 @@ namespace WebAPITest.endpoints.AccountDataTypes
             // Arrange
             var account = new AccountDTO
             {
-                Name = "TestingError",
-                Type = AccountType.Check
+                Name = "Nisses konto",
+                Type = (AccountType)5
             };
 
             // Act
