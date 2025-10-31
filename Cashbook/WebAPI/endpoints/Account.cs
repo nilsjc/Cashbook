@@ -17,7 +17,7 @@ namespace WebAPI.endpoints
             .WithOpenApi();
         }
 
-        public static async Task<IResult> CreateAccount(AccountDTO account, IValidator<AccountDTO> validator, IDatabaseService dbService)
+        public static async Task<IResult> CreateAccount(PostAccountDTO account, IValidator<PostAccountDTO> validator, IDatabaseService dbService)
         {
             var validationResult = await validator.ValidateAsync(account);
             if (!validationResult.IsValid)
@@ -43,7 +43,7 @@ namespace WebAPI.endpoints
             using var db = new CashBookContext();
             var accounts = await db.Accounts
                 .OrderBy(a => a.Name)
-                .Select(a => new AccountDTO
+                .Select(a => new PostAccountDTO
                 {
                     Name = a.Name,
                     Type = (AccountType)a.AccountType

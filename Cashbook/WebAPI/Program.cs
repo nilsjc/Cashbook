@@ -12,7 +12,7 @@ builder.WebHost.UseUrls("http://localhost:4711");
 builder.Services.AddCors();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
-builder.Services.AddScoped<IValidator<AccountDTO>, AccountCreateValidator>();
+builder.Services.AddScoped<IValidator<PostAccountDTO>, AccountCreateValidator>();
 builder.Services.AddScoped<IDatabaseService, EFDatabaseService>();
 
 var app = builder.Build();

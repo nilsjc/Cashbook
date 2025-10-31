@@ -3,7 +3,7 @@ using WebAPI.endpoints;
 
 namespace WebAPI.validators
 {
-    public class AccountCreateValidator : AbstractValidator<AccountDTO>
+    public class AccountCreateValidator : AbstractValidator<PostAccountDTO>
     {
         public AccountCreateValidator()
         {

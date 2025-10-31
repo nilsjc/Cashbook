@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using WebAPI.endpoints;
 
 namespace WebAPI.database
@@ -31,6 +32,21 @@ namespace WebAPI.database
                 await db.SaveChangesAsync();
                 return ServiceResult<string>.Ok(name);
             }
+        }
+
+        public async Task<ServiceResult<IEnumerable<GetAccountDTO>>> GetAllAccountsAsync()
+        {
+            using var db = new CashBookContext();
+            var accounts = await db.Accounts
+                .OrderBy(a => a.Name)
+                .Select(a => new GetAccountDTO
+                {
+                    Name = a.Name,
+                    Amount = a.Amount
+                })
+                .ToListAsync();
+
+            return ServiceResult<IEnumerable<GetAccountDTO>>.Ok(accounts);
         }
     }
 }

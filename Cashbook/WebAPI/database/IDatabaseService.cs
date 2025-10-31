@@ -5,6 +5,7 @@ namespace WebAPI.database
     public interface IDatabaseService
     {
         Task<ServiceResult<string>> CreateAccountAsync(string name, AccountType type);
+        Task<ServiceResult<IEnumerable<GetAccountDTO>>> GetAllAccountsAsync();
     }
 
     public class ServiceResult<T>

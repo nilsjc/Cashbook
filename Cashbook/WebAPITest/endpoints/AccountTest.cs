@@ -11,7 +11,7 @@ namespace WebAPITest.endpoints.AccountDataTypes
         public async Task CreateAccountWithCorruptType_ShouldReturnBadRequest()
         {
             // Arrange
-            var account = new AccountDTO
+            var account = new PostAccountDTO
             {
                 Name = "TestAcccount",
                 Type = (AccountType)5
@@ -33,7 +33,7 @@ namespace WebAPITest.endpoints.AccountDataTypes
         public async Task CreateAccountWithNoName_ShouldReturnBadRequest()
         {
             // Arrange
-            var account = new AccountDTO
+            var account = new PostAccountDTO
             {
                 Name = string.Empty,
                 Type = (AccountType)0
