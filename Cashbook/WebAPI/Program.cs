@@ -1,4 +1,5 @@
 using FluentValidation;
+using WebAPI.database;
 using WebAPI.endpoints;
 using WebAPI.validators;
 
@@ -12,6 +13,7 @@ builder.Services.AddCors();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
 builder.Services.AddScoped<IValidator<AccountDTO>, AccountCreateValidator>();
+builder.Services.AddScoped<IDatabaseService, EFDatabaseService>();
 
 var app = builder.Build();
 

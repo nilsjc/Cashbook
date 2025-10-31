@@ -17,7 +17,7 @@ namespace WebAPI.endpoints
             .WithOpenApi();
         }
 
-        public static async Task<IResult> CreateAccount(AccountDTO account, IValidator<AccountDTO> validator)
+        public static async Task<IResult> CreateAccount(AccountDTO account, IValidator<AccountDTO> validator, IDatabaseService dbService)
         {
             var validationResult = await validator.ValidateAsync(account);
             if (!validationResult.IsValid)
@@ -26,31 +26,15 @@ namespace WebAPI.endpoints
                 return Results.BadRequest(errors);
             }
 
+            string name = (account.Name.Length > 10 ? account.Name.Substring(0, 10) : account.Name)
+                                .ToLower();
             // create account
-            using (var db = new CashBookContext())
+            var result = await dbService.CreateAccountAsync(name, account.Type);
+            if (!result.Success)
             {
-                string name = (account.Name.Length > 10 ? account.Name.Substring(0, 10) : account.Name)
-                    .ToLower();
-
-                // check duplicates
-                var existingAccount = await db.Accounts.FindAsync(name);
-                if (existingAccount != null)
-                {
-                    return Results.Conflict($"An account with the name '{name}' already exists.");
-                }
-
-                var newAccount = new Account
-                {
-                    Name = name,
-                    AccountType = (int)account.Type,
-                    Amount = 0
-                };
-
-                db.Accounts.Add(newAccount);
-                await db.SaveChangesAsync();
-
+                return Results.Conflict(result.Error);
             }
-
+            
             return Results.Ok(account);
         }
         
