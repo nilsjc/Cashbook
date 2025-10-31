@@ -12,7 +12,7 @@ namespace WebAPI.endpoints
             .WithName("CreateAccount")
             .WithOpenApi();
 
-            app.MapGet("/accounts", GetAccounts)
+            app.MapGet("/accounts", GetAccount)
             .WithName("GetAccounts")
             .WithOpenApi();
         }
@@ -54,20 +54,19 @@ namespace WebAPI.endpoints
             return Results.Ok(account);
         }
         
-        public static async Task<IResult> GetAccounts()
+        public static async Task<IResult> GetAccount()
         {
-            using (var db = new CashBookContext())
-            {
-                var accounts = await db.Accounts
-                    .Select(a => new AccountDTO
-                    {
-                        Name = a.Name,
-                        Type = (AccountType)a.AccountType
-                    })
-                    .ToListAsync();
+            using var db = new CashBookContext();
+            var accounts = await db.Accounts
+                .OrderBy(a => a.Name)
+                .Select(a => new AccountDTO
+                {
+                    Name = a.Name,
+                    Type = (AccountType)a.AccountType
+                })
+                .ToListAsync();
 
-                return Results.Ok(accounts);
-            }
+            return Results.Ok(accounts);
         }
     }
 }
