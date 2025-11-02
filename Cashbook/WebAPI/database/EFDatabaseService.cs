@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using WebAPI.endpoints;
 
@@ -34,6 +35,8 @@ namespace WebAPI.database
             }
         }
 
+
+
         public async Task<ServiceResult<IEnumerable<GetAccountDTO>>> GetAllAccountsAsync()
         {
             using var db = new CashBookContext();
@@ -47,6 +50,30 @@ namespace WebAPI.database
                 .ToListAsync();
 
             return ServiceResult<IEnumerable<GetAccountDTO>>.Ok(accounts);
+        }
+        
+        public Task<ServiceResult<string>> CreateTransactionAsync(string fromAccount, string toAccount, int amount)
+        {
+            using var context = new CashBookContext();
+            using var transaction  = context.Database.BeginTransaction();
+            try
+            {
+                // perform transaction logic here
+
+                context.SaveChanges();
+
+               // perform transaction logic here
+
+                context.SaveChanges();
+
+                transaction.Commit();
+                return Task.FromResult(ServiceResult<string>.Ok("Transaction completed successfully."));
+            }
+            catch (Exception)
+            {
+                transaction.Rollback();
+                return Task.FromResult(ServiceResult<string>.Fail("Transaction failed."));
+            }
         }
     }
 }

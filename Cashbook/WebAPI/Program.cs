@@ -33,5 +33,6 @@ app.UseHttpsRedirection();
 
 // register API endpoints
 app.RegisterAccountEndpoints();
+app.RegisterTransactionEndpoints();
 
 app.Run();

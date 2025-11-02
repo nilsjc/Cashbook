@@ -6,6 +6,7 @@ namespace WebAPI.database
     {
         Task<ServiceResult<string>> CreateAccountAsync(string name, AccountType type);
         Task<ServiceResult<IEnumerable<GetAccountDTO>>> GetAllAccountsAsync();
+        Task<ServiceResult<string>> CreateTransactionAsync(string fromAccount, string toAccount, int amount);
     }
 
     public class ServiceResult<T>
