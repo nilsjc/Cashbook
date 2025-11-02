@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using System.Transactions;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using WebAPI.endpoints;
@@ -51,29 +52,72 @@ namespace WebAPI.database
 
             return ServiceResult<IEnumerable<GetAccountDTO>>.Ok(accounts);
         }
-        
-        public Task<ServiceResult<string>> CreateTransactionAsync(string fromAccount, string toAccount, int amount)
+
+        public async Task<ServiceResult<string>> CreateTransactionAsync(string fromAccount, string toAccount, int amount)
         {
-            using var context = new CashBookContext();
-            using var transaction  = context.Database.BeginTransaction();
-            try
+            using (var scope = new TransactionScope(TransactionScopeOption.Required,
+            new TransactionOptions { IsolationLevel = IsolationLevel.Serializable }))
             {
-                // perform transaction logic here
+                using (var context = new CashBookContext())
+                {
+                    var fromAcc = await context.Accounts.FindAsync(fromAccount);
+                    var toAcc = await context.Accounts.FindAsync(toAccount);
 
-                context.SaveChanges();
+                    if (fromAcc == null || toAcc == null)
+                    {
+                        return ServiceResult<string>.Fail("One or both accounts do not exist.");
+                    }
 
-               // perform transaction logic here
+                    // check amount
+                    if (fromAcc.Amount < amount)
+                        throw new InvalidOperationException("Otillräckligt saldo");
 
-                context.SaveChanges();
+                    //TODO check based on account types how the amounts should be handled
+                    
+                    fromAcc.Amount -= amount;
+                    toAcc.Amount += amount;
 
-                transaction.Commit();
-                return Task.FromResult(ServiceResult<string>.Ok("Transaction completed successfully."));
+                    context.SaveChanges();
+                }
+
+                // Commit-fas
+                scope.Complete();
+                return ServiceResult<string>.Ok("Transaction completed successfully.");
             }
-            catch (Exception)
-            {
-                transaction.Rollback();
-                return Task.FromResult(ServiceResult<string>.Fail("Transaction failed."));
-            }
+
+
+            //     using var context = new CashBookContext();
+            //     using var dbTransaction = await context.Database.BeginTransactionAsync();
+            //     try
+            //     {
+            //         var fromAcc = await context.Accounts.FindAsync(fromAccount);
+            //         var toAcc = await context.Accounts.FindAsync(toAccount);
+
+            //         if (fromAcc == null || toAcc == null)
+            //         {
+            //             return ServiceResult<string>.Fail("One or both accounts do not exist.");
+            //         }
+
+            //         // All changes are made within a single transaction
+            //         fromAcc.Amount -= amount;
+            //         toAcc.Amount += amount;
+
+            //         // perform transaction logic here
+            //         // Check-konton skiljer sig från utgifts- och inkomstkonton! 
+            //         // Saldot för check-konton ökar när kontot är ett till-konto. 
+            //         // Utgifts- och inkomstkonton däremot minskar när de är till-konton.
+
+            //         await context.SaveChangesAsync();
+            //         await dbTransaction.CommitAsync();
+
+            //         return ServiceResult<string>.Ok("Transaction completed successfully.");
+            //     }
+            //     catch (Exception ex)
+            //     {
+            //         await dbTransaction.RollbackAsync();
+            //         return ServiceResult<string>.Fail($"Transaction failed: {ex.Message}");
+            //     }
+            // }
         }
     }
 }
