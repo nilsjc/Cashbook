@@ -47,7 +47,38 @@ namespace CashbookIntegrationTest
             await dbService.CreateTransactionAsync(BankAccount, RentAccount, 250);
             await dbService.CreateTransactionAsync(SalaryAccount, BankAccount, 1000);
             await dbService.CreateTransactionAsync(BankAccount, RentAccount, 250);
-            
+
+
+            var result = await dbService.GetAllAccountsAsync();
+            if (result?.Data is not null)
+            {
+                foreach (var account in result?.Data)
+                {
+                    output.WriteLine(" - {0}: {1}", account.Name, account.Amount);
+                }
+            }
+            connection.Close();
+
+            Assert.True(result?.Data?.Count() == 4);
+
+        }
+
+        [Fact]
+        public async Task Test2()
+        {
+            SqliteConnection connection = null;
+            var dbService = CreateTestDatabaseService(connection);
+
+            // create accounts
+            await dbService.CreateAccountAsync(GroceryAccount, AccountType.Expense);
+            await dbService.CreateAccountAsync(BankAccount, AccountType.Check);
+            await dbService.CreateAccountAsync(RentAccount, AccountType.Expense);
+            await dbService.CreateAccountAsync(SalaryAccount, AccountType.Income);
+
+            // create transactions
+            await dbService.CreateTransactionAsync(SalaryAccount, BankAccount, 1000);
+            await dbService.CreateTransactionAsync(BankAccount, RentAccount, 100);
+            await dbService.CreateTransactionAsync(RentAccount, GroceryAccount, 100);
 
             var result = await dbService.GetAllAccountsAsync();
             if (result?.Data is not null)

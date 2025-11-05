@@ -7,7 +7,19 @@ namespace WebAPI.database
             if (this.AccountType == (int)endpoints.AccountType.Income)
             {
                 this.Amount += amount;
-            }else
+            }
+            else if (this.AccountType == (int)endpoints.AccountType.Expense)
+            {
+                if(this.Amount <= -amount)
+                {
+                    this.Amount += amount;
+                }
+                else
+                {
+                    this.Amount -= amount;
+                }
+            }
+            else
             {
                 this.Amount -= amount;
             }
