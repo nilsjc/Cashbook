@@ -43,10 +43,10 @@ namespace WebAPI.endpoints
             using var db = _dbContextFactory.CreateDbContext();
             var accounts = await db.Accounts
                 .OrderBy(a => a.Name)
-                .Select(a => new PostAccountDTO
+                .Select(a => new GetAccountDTO
                 {
                     Name = a.Name,
-                    Type = (AccountType)a.AccountType
+                    Amount = a.Amount
                 })
                 .ToListAsync();
 

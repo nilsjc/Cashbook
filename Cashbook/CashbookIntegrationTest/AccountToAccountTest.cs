@@ -30,12 +30,6 @@ namespace CashbookIntegrationTest
         }
 
         [Fact]
-        // [InlineData(SalaryAccount, BankAccount, 1000)]
-        // [InlineData(BankAccount, GroceryAccount, 50)]
-        // [InlineData(BankAccount, RentAccount, 250)]
-        // [InlineData(IncomeAccount, BankAccount, 1000)]
-        // [InlineData(BankAccount, RentAccount, 250)]
-
         public async Task Test1()
         {
             SqliteConnection connection = null;
@@ -46,13 +40,12 @@ namespace CashbookIntegrationTest
             await dbService.CreateAccountAsync(BankAccount, AccountType.Check);
             await dbService.CreateAccountAsync(RentAccount, AccountType.Expense);
             await dbService.CreateAccountAsync(SalaryAccount, AccountType.Income);
-            await dbService.CreateAccountAsync(IncomeAccount, AccountType.Income);
 
             // create transactions
             await dbService.CreateTransactionAsync(SalaryAccount, BankAccount, 1000);
             await dbService.CreateTransactionAsync(BankAccount, GroceryAccount, 50);
             await dbService.CreateTransactionAsync(BankAccount, RentAccount, 250);
-            await dbService.CreateTransactionAsync(IncomeAccount, BankAccount, 1000);
+            await dbService.CreateTransactionAsync(SalaryAccount, BankAccount, 1000);
             await dbService.CreateTransactionAsync(BankAccount, RentAccount, 250);
             
 
@@ -66,7 +59,7 @@ namespace CashbookIntegrationTest
             }
             connection.Close();
 
-            Assert.True(result?.Data?.Count() == 5);
+            Assert.True(result?.Data?.Count() == 4);
 
         }
         public static EFDatabaseService CreateTestDatabaseService(SqliteConnection connection)

@@ -9,14 +9,9 @@ namespace WebAPI.database
         public CashBookDbContext(DbContextOptions<CashBookDbContext> options) : base(options)
         {
         }
-
-        // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
-        // {
-        //     optionsBuilder.UseSqlite("Data Source=cashbook.db");
-        // }
     }
     
-    public class Account
+    public partial class Account
     {
         [Key]
         public string Name { get; set; } = "";

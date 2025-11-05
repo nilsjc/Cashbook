@@ -60,69 +60,27 @@ namespace WebAPI.database
 
         public async Task<ServiceResult<string>> CreateTransactionAsync(string fromAccount, string toAccount, int amount)
         {
-            using (var scope = new TransactionScope(TransactionScopeOption.Required,
-            new TransactionOptions { IsolationLevel = IsolationLevel.Serializable }))
+            using var context = _dbContextFactory.CreateDbContext();
+            using var tx = await context.Database.BeginTransactionAsync();
+            try
             {
-                using (var context = _dbContextFactory.CreateDbContext())
-                {
-                    var fromAcc = await context.Accounts.FindAsync(fromAccount);
-                    var toAcc = await context.Accounts.FindAsync(toAccount);
+                var fromAcc = await context.Accounts.FindAsync(fromAccount);
+                var toAcc = await context.Accounts.FindAsync(toAccount);
 
-                    if (fromAcc == null || toAcc == null)
-                    {
-                        return ServiceResult<string>.Fail("One or both accounts do not exist.");
-                    }
+                if (fromAcc == null || toAcc == null)
+                    return ServiceResult<string>.Fail("One or both accounts do not exist.");
 
-                    // check amount
-                    if (fromAcc.Amount < amount)
-                        throw new InvalidOperationException("Otillräckligt saldo");
+                fromAcc.TransferTo(toAcc, amount);
 
-                    //TODO check based on account types how the amounts should be handled
-                    
-                    fromAcc.Amount -= amount;
-                    toAcc.Amount += amount;
-
-                    context.SaveChanges();
-                }
-
-                // Commit-fas
-                scope.Complete();
+                await context.SaveChangesAsync();
+                await tx.CommitAsync();
                 return ServiceResult<string>.Ok("Transaction completed successfully.");
             }
-
-
-            //     using var context = new CashBookContext();
-            //     using var dbTransaction = await context.Database.BeginTransactionAsync();
-            //     try
-            //     {
-            //         var fromAcc = await context.Accounts.FindAsync(fromAccount);
-            //         var toAcc = await context.Accounts.FindAsync(toAccount);
-
-            //         if (fromAcc == null || toAcc == null)
-            //         {
-            //             return ServiceResult<string>.Fail("One or both accounts do not exist.");
-            //         }
-
-            //         // All changes are made within a single transaction
-            //         fromAcc.Amount -= amount;
-            //         toAcc.Amount += amount;
-
-            //         // perform transaction logic here
-            //         // Check-konton skiljer sig från utgifts- och inkomstkonton! 
-            //         // Saldot för check-konton ökar när kontot är ett till-konto. 
-            //         // Utgifts- och inkomstkonton däremot minskar när de är till-konton.
-
-            //         await context.SaveChangesAsync();
-            //         await dbTransaction.CommitAsync();
-
-            //         return ServiceResult<string>.Ok("Transaction completed successfully.");
-            //     }
-            //     catch (Exception ex)
-            //     {
-            //         await dbTransaction.RollbackAsync();
-            //         return ServiceResult<string>.Fail($"Transaction failed: {ex.Message}");
-            //     }
-            // }
+            catch (Exception ex)
+            {
+                await tx.RollbackAsync();
+                return ServiceResult<string>.Fail($"Transaction failed: {ex.Message}");
+            }
         }
     }
 }
