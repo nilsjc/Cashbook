@@ -6,6 +6,10 @@ using System.Threading.Tasks;
 using WebAPI.endpoints;
 using Xunit;
 using WebAPI.database;
+using Microsoft.Data.Sqlite;
+using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Xunit.Abstractions;
 
 namespace CashbookIntegrationTest
 {
@@ -17,61 +21,73 @@ namespace CashbookIntegrationTest
         const string GroceryAccount = "Livsmedel";
         const string RentAccount = "Hyra";
 
-        public AccountToAccountTest()
+        private readonly ITestOutputHelper output;
+
+        public AccountToAccountTest(ITestOutputHelper output)
         {
+            this.output = output;
 
         }
 
-        [Theory]
-        [InlineData(SalaryAccount, BankAccount, 1000)]
-        [InlineData(BankAccount, GroceryAccount, 50)]
-        [InlineData(BankAccount, RentAccount, 250)]
-        [InlineData(IncomeAccount, BankAccount, 1000)]
-        [InlineData(BankAccount, RentAccount, 250)]
+        [Fact]
+        // [InlineData(SalaryAccount, BankAccount, 1000)]
+        // [InlineData(BankAccount, GroceryAccount, 50)]
+        // [InlineData(BankAccount, RentAccount, 250)]
+        // [InlineData(IncomeAccount, BankAccount, 1000)]
+        // [InlineData(BankAccount, RentAccount, 250)]
 
-        public async Task Test1(string fromAcount, string toAccount, int amount)
+        public async Task Test1()
         {
-            // create accounts in database
-            IDatabaseService dbService = new EFDatabaseService();
+            SqliteConnection connection = null;
+            var dbService = CreateTestDatabaseService(connection);
+
+            // create accounts
             await dbService.CreateAccountAsync(GroceryAccount, AccountType.Expense);
             await dbService.CreateAccountAsync(BankAccount, AccountType.Check);
             await dbService.CreateAccountAsync(RentAccount, AccountType.Expense);
             await dbService.CreateAccountAsync(SalaryAccount, AccountType.Income);
             await dbService.CreateAccountAsync(IncomeAccount, AccountType.Income);
 
-            Assert.True(true);
-        }
-    }
-    
-    public class MockDatabaseService : IDatabaseService
-    {
-        List<ExistingAccount> accounts = new List<ExistingAccount>();
-        public async Task<ServiceResult<string>> CreateAccountAsync(string name, AccountType type)
-        {
-            accounts.Add(new ExistingAccount
-            {
-                Name = name,
-                Type = type,
-                Amount = 0
-            });
-            return ServiceResult<string>.Ok("Transaction completed successfully.");
-        }
+            // create transactions
+            await dbService.CreateTransactionAsync(SalaryAccount, BankAccount, 1000);
+            await dbService.CreateTransactionAsync(BankAccount, GroceryAccount, 50);
+            await dbService.CreateTransactionAsync(BankAccount, RentAccount, 250);
+            await dbService.CreateTransactionAsync(IncomeAccount, BankAccount, 1000);
+            await dbService.CreateTransactionAsync(BankAccount, RentAccount, 250);
+            
 
-        public async Task<ServiceResult<string>> CreateTransactionAsync(string fromAccount, string toAccount, int amount)
-        {
-            throw new NotImplementedException();
-        }
-
-        public async Task<ServiceResult<IEnumerable<GetAccountDTO>>> GetAllAccountsAsync()
-        {
-            var result = accounts
-            .OrderBy(a => a.Name)
-            .Select(a => new GetAccountDTO
+            var result = await dbService.GetAllAccountsAsync();
+            if (result?.Data is not null)
             {
-                Name = a.Name,
-                Amount = a.Amount
+                foreach (var account in result?.Data)
+                {
+                    output.WriteLine(" - {0}: {1}", account.Name, account.Amount);
+                }
+            }
+            connection.Close();
+
+            Assert.True(result?.Data?.Count() == 5);
+
+        }
+        public static EFDatabaseService CreateTestDatabaseService(SqliteConnection connection)
+        {
+            connection = new SqliteConnection("DataSource=:memory:");
+            connection.Open();
+
+            var services = new ServiceCollection();
+            services.AddDbContextFactory<CashBookDbContext>(opts =>
+            {
+                opts.UseSqlite(connection);
             });
-            return ServiceResult<IEnumerable<GetAccountDTO>>.Ok(result);
+            var provider = services.BuildServiceProvider();
+
+            var factory = provider.GetRequiredService<IDbContextFactory<CashBookDbContext>>();
+            using (var ctx = factory.CreateDbContext())
+            {
+                ctx.Database.EnsureCreated();
+            }
+
+            return new EFDatabaseService(factory);
         }
     }
 }
