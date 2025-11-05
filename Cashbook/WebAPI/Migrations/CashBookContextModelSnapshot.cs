@@ -8,7 +8,7 @@ using WebAPI.database;
 
 namespace WebAPI.Migrations
 {
-    [DbContext(typeof(CashBookContext))]
+    [DbContext(typeof(CashBookDbContext))]
     partial class CashBookContextModelSnapshot : ModelSnapshot
     {
         protected override void BuildModel(ModelBuilder modelBuilder)

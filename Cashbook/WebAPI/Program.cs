@@ -1,4 +1,5 @@
 using FluentValidation;
+using Microsoft.EntityFrameworkCore;
 using WebAPI.database;
 using WebAPI.endpoints;
 using WebAPI.validators;
@@ -12,9 +13,11 @@ builder.WebHost.UseUrls("http://localhost:4711");
 builder.Services.AddCors();
 builder.Services.AddEndpointsApiExplorer();
 builder.Services.AddSwaggerGen();
+builder.Services.AddDbContextFactory<CashBookDbContext>(options =>
+    options.UseSqlite("Data Source=cashbook.db"));
 builder.Services.AddScoped<IValidator<PostAccountDTO>, AccountCreateValidator>();
 builder.Services.AddScoped<IDatabaseService, EFDatabaseService>();
-
+    
 var app = builder.Build();
 
 // Configure the HTTP request pipeline.

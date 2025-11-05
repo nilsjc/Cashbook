@@ -19,6 +19,15 @@ namespace WebAPI.endpoints
         public string Name { get; set; }
         public int Amount { get; set; }
     }
+    public class TransactionRequestDTO
+    {
+        [Required]
+        public string FromAccount { get; set; }
+        [Required]
+        public string ToAccount { get; set; }
+        [Required]
+        public int Amount { get; set; }
+    }
     public enum AccountType
     {
         Income,
@@ -26,16 +35,13 @@ namespace WebAPI.endpoints
         Check
     }
 
-public class TransactionRequest
-{
-    [Required]
-    public string FromAccount { get; set; }
+    public record ExistingAccount
+    {
+        public string Name { get; set; }
+        public AccountType Type { get; set; }
+        public int Amount { get; set; }
+    }
 
-    [Required]
-    public string ToAccount { get; set; }
 
-    [Required]
-    public int Amount { get; set; }
-}
 
 }

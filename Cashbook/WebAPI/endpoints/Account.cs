@@ -38,9 +38,9 @@ namespace WebAPI.endpoints
             return Results.Ok(account);
         }
         
-        public static async Task<IResult> GetAccount()
+        public static async Task<IResult> GetAccount(IDbContextFactory<CashBookDbContext> _dbContextFactory)
         {
-            using var db = new CashBookContext();
+            using var db = _dbContextFactory.CreateDbContext();
             var accounts = await db.Accounts
                 .OrderBy(a => a.Name)
                 .Select(a => new PostAccountDTO

@@ -9,7 +9,7 @@ using WebAPI.database;
 
 namespace WebAPI.Migrations
 {
-    [DbContext(typeof(CashBookContext))]
+    [DbContext(typeof(CashBookDbContext))]
     [Migration("20251031130756_InitialCreate")]
     partial class InitialCreate
     {

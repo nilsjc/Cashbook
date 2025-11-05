@@ -3,14 +3,17 @@ using Microsoft.EntityFrameworkCore;
 
 namespace WebAPI.database
 {
-    public class CashBookContext : DbContext
+    public class CashBookDbContext : DbContext
     {
         public DbSet<Account> Accounts { get; set; }
-
-        protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        public CashBookDbContext(DbContextOptions<CashBookDbContext> options) : base(options)
         {
-            optionsBuilder.UseSqlite("Data Source=cashbook.db");
         }
+
+        // protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
+        // {
+        //     optionsBuilder.UseSqlite("Data Source=cashbook.db");
+        // }
     }
     
     public class Account

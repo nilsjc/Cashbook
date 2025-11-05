@@ -57,5 +57,15 @@ namespace WebAPITest.endpoints.AccountDataTypes
         {
             throw new NotImplementedException();
         }
+
+        public Task<ServiceResult<string>> CreateTransactionAsync(string fromAccount, string toAccount, int amount)
+        {
+            throw new NotImplementedException();
+        }
+
+        public Task<ServiceResult<IEnumerable<GetAccountDTO>>> GetAllAccountsAsync()
+        {
+            throw new NotImplementedException();
+        }
     }
 }

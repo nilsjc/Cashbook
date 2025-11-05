@@ -10,10 +10,10 @@ namespace WebAPI.endpoints
         public static void RegisterTransactionEndpoints(this WebApplication app)
         {
             app.MapPost("/transaction", CreateTransaction)
-            .WithName("CreateAccount")
+            .WithName("CreateTransaction")
             .WithOpenApi();
         }
-        public static async Task<IResult> CreateTransaction(TransactionRequest request)
+        public static async Task<IResult> CreateTransaction(TransactionRequestDTO request)
         {
             // Transaction logic to be implemented
             return Results.Ok(request);

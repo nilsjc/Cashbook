@@ -11,10 +11,15 @@ namespace WebAPI.database
 {
     public class EFDatabaseService : IDatabaseService
     {
+        private readonly IDbContextFactory<CashBookDbContext> _dbContextFactory;
+        public EFDatabaseService(IDbContextFactory<CashBookDbContext> dbContextFactory)
+        {
+            _dbContextFactory = dbContextFactory;
+        }
         public async Task<ServiceResult<string>> CreateAccountAsync(string name, AccountType type)
         {
             // create account
-            using (var db = new CashBookContext())
+            using (var db = _dbContextFactory.CreateDbContext())
             {
                 // check duplicates
                 var existingAccount = await db.Accounts.FindAsync(name);
@@ -40,7 +45,7 @@ namespace WebAPI.database
 
         public async Task<ServiceResult<IEnumerable<GetAccountDTO>>> GetAllAccountsAsync()
         {
-            using var db = new CashBookContext();
+            using var db = _dbContextFactory.CreateDbContext();
             var accounts = await db.Accounts
                 .OrderBy(a => a.Name)
                 .Select(a => new GetAccountDTO
@@ -58,7 +63,7 @@ namespace WebAPI.database
             using (var scope = new TransactionScope(TransactionScopeOption.Required,
             new TransactionOptions { IsolationLevel = IsolationLevel.Serializable }))
             {
-                using (var context = new CashBookContext())
+                using (var context = _dbContextFactory.CreateDbContext())
                 {
                     var fromAcc = await context.Accounts.FindAsync(fromAccount);
                     var toAcc = await context.Accounts.FindAsync(toAccount);
