@@ -32,7 +32,7 @@ namespace CashbookIntegrationTest
         [Fact]
         public async Task Test1()
         {
-            SqliteConnection connection = null;
+            SqliteConnection? connection = null;
             var dbService = CreateTestDatabaseService(connection);
 
             // create accounts
@@ -50,23 +50,21 @@ namespace CashbookIntegrationTest
 
 
             var result = await dbService.GetAllAccountsAsync();
-            if (result?.Data is not null)
-            {
-                foreach (var account in result?.Data)
-                {
-                    output.WriteLine(" - {0}: {1}", account.Name, account.Amount);
-                }
-            }
-            connection.Close();
+            output.WriteLine(result?.Data?.ToString());
 
-            Assert.True(result?.Data?.Count() == 4);
+            Assert.True(result?.Data?.Where(a => a.Name == BankAccount).First().Amount == 1450);
+            Assert.True(result?.Data?.Where(a => a.Name == GroceryAccount).First().Amount == -50);
+            Assert.True(result?.Data?.Where(a => a.Name == RentAccount).First().Amount == -500);
+            Assert.True(result?.Data?.Where(a => a.Name == SalaryAccount).First().Amount == 2000);
+
+            connection?.Close();
 
         }
 
         [Fact]
         public async Task Test2()
         {
-            SqliteConnection connection = null;
+            SqliteConnection? connection = null;
             var dbService = CreateTestDatabaseService(connection);
 
             // create accounts
@@ -81,19 +79,18 @@ namespace CashbookIntegrationTest
             await dbService.CreateTransactionAsync(RentAccount, GroceryAccount, 100);
 
             var result = await dbService.GetAllAccountsAsync();
-            if (result?.Data is not null)
-            {
-                foreach (var account in result?.Data)
-                {
-                    output.WriteLine(" - {0}: {1}", account.Name, account.Amount);
-                }
-            }
-            connection.Close();
+            output.WriteLine(result?.Data?.ToString());
 
-            Assert.True(result?.Data?.Count() == 4);
+            Assert.True(result?.Data?.Where(a => a.Name == BankAccount).First().Amount == 900);
+            Assert.True(result?.Data?.Where(a => a.Name == RentAccount).First().Amount == 0);
+            Assert.True(result?.Data?.Where(a => a.Name == GroceryAccount).First().Amount == -100);
+            Assert.True(result?.Data?.Where(a => a.Name == SalaryAccount).First().Amount == 1000);
+
+            connection?.Close();
+
 
         }
-        public static EFDatabaseService CreateTestDatabaseService(SqliteConnection connection)
+        public static EFDatabaseService CreateTestDatabaseService(SqliteConnection? connection)
         {
             connection = new SqliteConnection("DataSource=:memory:");
             connection.Open();
