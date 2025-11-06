@@ -1,5 +1,8 @@
 using FluentValidation;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.DependencyInjection;
+using Microsoft.Extensions.Logging;
+using System.IO;
 using WebAPI.database;
 using WebAPI.endpoints;
 using WebAPI.validators;
@@ -33,6 +36,25 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+// Create database if not exists. This is bad practice and used only for demo purposes.
+using (var scope = app.Services.CreateScope())
+{
+    var logger = scope.ServiceProvider.GetRequiredService<ILogger<Program>>();
+    try
+    {
+        var factory = scope.ServiceProvider.GetRequiredService<IDbContextFactory<CashBookDbContext>>();
+        using var db = factory.CreateDbContext();
+        logger.LogInformation("Applying EF Core migrations (creating DB if missing)...");
+        db.Database.EnsureCreated();
+        logger.LogInformation("Migrations applied successfully.");
+    }
+    catch (Exception ex)
+    {
+        logger.LogError(ex, "An error occurred while applying migrations on startup.");
+        throw;
+    }
+}
 
 // register API endpoints
 app.RegisterAccountEndpoints();

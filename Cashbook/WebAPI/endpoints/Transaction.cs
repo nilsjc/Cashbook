@@ -1,7 +1,4 @@
-using System;
-using System.Collections.Generic;
-using System.Linq;
-using System.Threading.Tasks;
+using WebAPI.database;
 
 namespace WebAPI.endpoints
 {
@@ -13,9 +10,18 @@ namespace WebAPI.endpoints
             .WithName("CreateTransaction")
             .WithOpenApi();
         }
-        public static async Task<IResult> CreateTransaction(TransactionRequestDTO request)
+        public static async Task<IResult> CreateTransaction(TransactionRequestDTO request, IDatabaseService dbService)
         {
-            // Transaction logic to be implemented
+            if(request.FromAccount == request.ToAccount)
+            {
+                return Results.BadRequest("FromAccount and ToAccount cannot be the same.");
+            }
+            var result = await dbService.CreateTransactionAsync(request.FromAccount, request.ToAccount, request.Amount);
+            if (!result.Success)
+            {
+                return Results.Conflict(result.Error);
+            }
+            
             return Results.Ok(request);
         }
     }
