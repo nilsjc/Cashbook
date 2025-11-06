@@ -60,6 +60,10 @@ namespace WebAPI.database
 
         public async Task<ServiceResult<string>> CreateTransactionAsync(string fromAccount, string toAccount, int amount)
         {
+            if(fromAccount == toAccount)
+            {
+                return ServiceResult<string>.Fail("Cannot transfer to the same account.");
+            }
             using var context = _dbContextFactory.CreateDbContext();
             using var tx = await context.Database.BeginTransactionAsync();
             try
