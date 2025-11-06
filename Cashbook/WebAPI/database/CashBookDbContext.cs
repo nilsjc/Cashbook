@@ -17,5 +17,9 @@ namespace WebAPI.database
         public string Name { get; set; } = "";
         public int AccountType { get; set; }
         public int Amount { get; set; }
+        
+        // Optimistic concurrency token. EF will use this to detect concurrent updates.
+        [Timestamp]
+        public byte[]? RowVersion { get; set; }
     }
 }
