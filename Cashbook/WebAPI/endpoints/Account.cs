@@ -12,7 +12,7 @@ namespace WebAPI.endpoints
             .WithName("CreateAccount")
             .WithOpenApi();
 
-            app.MapGet("/accounts", GetAccount)
+            app.MapGet("/accounts", GetAccounts)
             .WithName("GetAccounts")
             .WithOpenApi();
         }
@@ -38,19 +38,18 @@ namespace WebAPI.endpoints
             return Results.Ok(account);
         }
         
-        public static async Task<IResult> GetAccount(IDbContextFactory<CashBookDbContext> _dbContextFactory)
+        public static async Task<IResult> GetAccounts(IDatabaseService dbService)
         {
-            using var db = _dbContextFactory.CreateDbContext();
-            var accounts = await db.Accounts
-                .OrderBy(a => a.Name)
-                .Select(a => new GetAccountDTO
-                {
-                    Name = a.Name,
-                    Amount = a.Amount
-                })
-                .ToListAsync();
-
-            return Results.Ok(accounts);
+            try
+            {
+                var accounts = await dbService.GetAllAccountsAsync();
+                return Results.Ok(accounts);
+            }
+            catch (Exception ex)
+            {
+                return Results.Problem(ex.Message);
+            }
+            
         }
     }
 }

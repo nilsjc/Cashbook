@@ -39,8 +39,7 @@ namespace CashbookIntegrationTest
             await dbService.CreateAccountAsync(RentAccount, AccountType.Expense);
             await dbService.CreateAccountAsync(SalaryAccount, AccountType.Income);
 
-            var result = await dbService.GetAllAccountsAsync();
-
+           var result = await dbService.GetAllAccountsAsync();
             var names = result!.Data!.Select(a => a.Name).ToList();
 
             var expected = names
