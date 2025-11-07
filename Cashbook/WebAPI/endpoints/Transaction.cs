@@ -2,7 +2,7 @@ using WebAPI.database;
 
 namespace WebAPI.endpoints
 {
-    public static class Transaction
+    public static class TransactionAPI
     {
         public static void RegisterTransactionEndpoints(this WebApplication app)
         {

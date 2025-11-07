@@ -49,7 +49,6 @@ namespace WebAPI.endpoints
             {
                 return Results.Problem(ex.Message);
             }
-            
         }
     }
 }

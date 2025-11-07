@@ -15,10 +15,10 @@ namespace CashbookIntegrationTest
 {
     public class AccountToAccountTest
     {
-        const string SalaryAccount = "Lön";
-        const string BankAccount = "Bankkonto";
-        const string GroceryAccount = "Livsmedel";
-        const string RentAccount = "Hyra";
+        const string SalaryAccount = "lön";
+        const string BankAccount = "bankkonto";
+        const string GroceryAccount = "livsmedel";
+        const string RentAccount = "hyra";
 
         private readonly ITestOutputHelper output;
 
